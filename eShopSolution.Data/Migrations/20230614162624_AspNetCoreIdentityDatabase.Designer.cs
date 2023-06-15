@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eShopSolution.Data.EF;
 
@@ -11,9 +12,11 @@ using eShopSolution.Data.EF;
 namespace eShopSolution.Data.Migrations
 {
     [DbContext(typeof(EShopDbContext))]
-    partial class EShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230614162624_AspNetCoreIdentityDatabase")]
+    partial class AspNetCoreIdentityDatabase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,13 +102,6 @@ namespace eShopSolution.Data.Migrations
                     b.HasKey("RoleId", "UserId");
 
                     b.ToTable("AppUserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            RoleId = new Guid("8748b902-ad9d-4f5c-9f9f-39a05e967be5"),
-                            UserId = new Guid("f84c11e3-1c71-4e40-b87a-1a58d1b9eb75")
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
@@ -184,15 +180,6 @@ namespace eShopSolution.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AppRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("8748b902-ad9d-4f5c-9f9f-39a05e967be5"),
-                            Description = "Administrator role",
-                            Name = "admin",
-                            NormalizedName = "admin"
-                        });
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.AppUser", b =>
@@ -259,27 +246,6 @@ namespace eShopSolution.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AppUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("f84c11e3-1c71-4e40-b87a-1a58d1b9eb75"),
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "3368f66a-1241-403a-aa3f-4f13d90d0fab",
-                            Dob = new DateTime(2023, 6, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "hdhthanh.20it3@vku.udn.vn",
-                            EmailConfirmed = true,
-                            FirstName = "Ho",
-                            LastName = "Thanh",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "hdhthanh.20it3@vku.udn.vn",
-                            NormalizedUserName = "admin",
-                            PasswordHash = "AQAAAAIAAYagAAAAECLrqVA1MZCLN+u2MBgUqr2xnvKGwRhPXqaZ27ulhT50ZVf9y38g773R5iIi7jPv8A==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "",
-                            TwoFactorEnabled = false,
-                            UserName = "admin"
-                        });
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.Cart", b =>
@@ -620,7 +586,7 @@ namespace eShopSolution.Data.Migrations
                         new
                         {
                             Id = 1,
-                            DateCreated = new DateTime(2023, 6, 15, 0, 0, 26, 17, DateTimeKind.Local).AddTicks(9129),
+                            DateCreated = new DateTime(2023, 6, 14, 23, 26, 24, 382, DateTimeKind.Local).AddTicks(9883),
                             OriginalPrice = 100000m,
                             Price = 200000m,
                             Stock = 0,
