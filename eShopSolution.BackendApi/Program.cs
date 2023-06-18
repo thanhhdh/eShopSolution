@@ -1,4 +1,5 @@
 using eShopSolution.Application.Catalog.Products;
+using eShopSolution.Application.Common;
 using eShopSolution.Data.EF;
 using eShopSolution.Utilities.Constants;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,9 @@ builder.Services.AddDbContext<EShopDbContext>(options =>
 });
 // Delace DI
 builder.Services.AddTransient<IPublicProductService, PublicProductService>();
+builder.Services.AddTransient<IManageProductService, ManageProductService>();
+builder.Services.AddTransient<IStorageService, FileStorageService>();
+
 builder.Services.AddControllersWithViews();
 //Add Swagger
 builder.Services.AddControllers();
