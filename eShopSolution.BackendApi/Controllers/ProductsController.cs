@@ -2,6 +2,7 @@
 using eShopSolution.Data.Entities;
 using eShopSolution.ViewModels.Catalog.ProductImages;
 using eShopSolution.ViewModels.Catalog.Products;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +22,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
         //http://locohost:port/product?pageIndex=1&pageSize=10&categoryId=
 
-        [HttpGet("{languageId}")]
+        [HttpGet("{languageId}"), Authorize]
         public async Task<IActionResult> GetAllPaging(string languageId, [FromQuery] GetPublicProductPagingRequest request)
         {
             var products = await _publicProductService.GetAllByCategoryId(languageId, request);
