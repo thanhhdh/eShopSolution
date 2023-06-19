@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 	<ItemGroup>
-		<FrameworkReference Include="MicroSoft.AspNetCore.App"/>
+		<FrameworkReference Include="MicroSoft.AspNetCore.App" />
 	</ItemGroup>
 
   <ItemGroup>

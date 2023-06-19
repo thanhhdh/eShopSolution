@@ -48,10 +48,6 @@ namespace eShopSolution.Data.EF
             modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("AppRoleClaims");
             modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("AppUserTokens").HasKey( x => x.UserId);
 
-
-
-
-
             //Data Seeding
             modelBuilder.Seed();
 
