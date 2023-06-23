@@ -9,6 +9,6 @@ namespace eShopSolution.ViewModels.Common
     public class PagedResult<T> : PagingRequestBase
     {
         public int TotalRecord { set; get; }
-        public List<T> Items { set; get; }
+        public List<T>? Items { set; get; } 
     }
 }
