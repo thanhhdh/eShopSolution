@@ -45,6 +45,7 @@ namespace eShopSolution.BackendApi.Controllers
             return Ok();
         }
 
+        //https://localhost/api/users/paging?pageIndex=1&pageSize=10&keywork=
         [HttpGet("paging")]
         public async Task<IActionResult> GetUsersPaging([FromQuery]GetUserPagingRequest request)
         {

@@ -19,7 +19,7 @@ builder.Services.AddTransient<IUserApiClient, UserApiClient>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
 {
-    options.LoginPath = "/User/Login/";
+    options.LoginPath = "/Login/Index/";
     options.LogoutPath = "/User/Forbidden/";
 });
 
@@ -28,7 +28,7 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromSeconds(10);
+    options.IdleTimeout = TimeSpan.FromSeconds(50);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
