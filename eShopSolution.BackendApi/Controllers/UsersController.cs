@@ -1,4 +1,5 @@
 ﻿using eShopSolution.Application.System.Users;
+using eShopSolution.ViewModels.Catalog.Products;
 using eShopSolution.ViewModels.System.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -22,13 +23,13 @@ namespace eShopSolution.BackendApi.Controllers
         public async Task<IActionResult> Authenticate([FromBody] LoginRequest request)
         {
             if(!ModelState.IsValid)  return BadRequest(ModelState); 
-            var resultToken = await _userService.Authenticate(request);
-            if(string.IsNullOrEmpty(resultToken))
+            var result = await _userService.Authenticate(request);
+            if(string.IsNullOrEmpty(result.ResultObj))
             {
-                return BadRequest("Username or Password inCorrect!");
+                return BadRequest(result);
             }
            
-            return Ok(resultToken);
+            return Ok(result);
         }
 
         [HttpPost]
@@ -37,12 +38,24 @@ namespace eShopSolution.BackendApi.Controllers
         {
             if (!ModelState.IsValid) { return BadRequest(ModelState); }
             var result = await _userService.Register(request);
-            if (!result)
+            if (!result.IsSuccessed)
             {
-                return BadRequest("Register unsuccessfull!");
+                return BadRequest(result);
             }
            
-            return Ok();
+            return Ok(result);
+        }
+        //https:/localhost/api/users/id
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UserUpdateRequest request)
+        {
+            if (!ModelState.IsValid) { return BadRequest(ModelState); }
+            var result = await _userService.Update(id, request);
+            if (!result.IsSuccessed)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
 
         //https://localhost/api/users/paging?pageIndex=1&pageSize=10&keywork=
@@ -51,6 +64,14 @@ namespace eShopSolution.BackendApi.Controllers
         {
 
             var users = await _userService.GetUsersPaging(request);
+            return Ok(users);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+
+            var users = await _userService.GetById(id);
             return Ok(users);
         }
     }
