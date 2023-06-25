@@ -66,6 +66,18 @@ namespace eShopSolution.Application.System.Users
             }
         }
 
+        public async Task<ApiResult<bool>> Delete(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null) { return new ApiErrorResult<bool>("Người dùng không tồn tại"); }
+            var result = await _userManager.DeleteAsync(user);
+            if(result.Succeeded)
+            {
+                return new ApiSuccessResult<bool>();
+            }
+            return new ApiErrorResult<bool>("Xóa không thành công");
+        }
+
         public async Task<ApiResult<UserVm>> GetById(Guid id)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
@@ -86,9 +98,15 @@ namespace eShopSolution.Application.System.Users
         public async Task<ApiResult<PagedResult<UserVm>>> GetUsersPaging(GetUserPagingRequest request)
         {
             var query = _userManager.Users;
-            if(!string.IsNullOrEmpty(request.Keywork))
+            if(!string.IsNullOrEmpty(request.Keyword))
             {
-                query = query.Where(x => x.UserName.Contains(request.Keywork)|| x.PhoneNumber.Contains(request.Keywork));
+                query = query.Where(
+                    x => x.UserName.Contains(request.Keyword) || 
+                    x.PhoneNumber.Contains(request.Keyword) || 
+                    x.FirstName.Contains(request.Keyword) || 
+                    x.LastName.Contains(request.Keyword) || 
+                    x.FirstName.Contains(request.Keyword) || 
+                    x.Email.Contains(request.Keyword));
             }
 
             // 3 paging

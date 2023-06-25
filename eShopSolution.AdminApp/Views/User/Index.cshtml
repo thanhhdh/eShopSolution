@@ -14,7 +14,25 @@
     </ol>
     <div class="card mb-4">
         <div class="card-header">
-            <a class="btn btn-success" asp-action="Create" asp-controller="User">Tạo mới</a>
+            <div class="row">
+                <div class="col-md-6">
+                    <a class="btn btn-success" asp-action="Create" asp-controller="User">Tạo mới</a>
+                </div>
+                <div class="col-md-6">
+                    <form asp-action="Index" method="get">
+                        <div class="row">
+                            <div class="col-md-9">
+                                <input class="form-control" value="@ViewBag.Keyword" type="text" name="keyword" placeholder="Tìm kiếm ..." />
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary" type="submit">Tìm</button>
+                                <button class="btn btn-dark" type="button" onclick="window.location.href='/User/Index'">Reset</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </div>
         <div class="card-body">
             <div class="table-responsive">

@@ -27,7 +27,6 @@ namespace eShopSolution.ViewModels.System.Users
         public string? Password { get; set; }
         [Display(Name = "Nhập lại mật khẩu")]
         [DataType(DataType.Password)]
-
         public string? ConfirmPassword { get; set; }
 
     }
