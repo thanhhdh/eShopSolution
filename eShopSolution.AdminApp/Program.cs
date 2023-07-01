@@ -14,8 +14,6 @@ if (builder.Environment.IsDevelopment())
 }
 builder.Services.AddHttpClient();
 
-builder.Services.AddTransient<IUserApiClient, UserApiClient>();
-
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
 {
@@ -26,9 +24,13 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+
+builder.Services.AddTransient<IUserApiClient, UserApiClient>();
+builder.Services.AddTransient<IRoleApiClient, RoleApiClient>();
+
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromSeconds(50);
+    options.IdleTimeout = TimeSpan.FromSeconds(300);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });

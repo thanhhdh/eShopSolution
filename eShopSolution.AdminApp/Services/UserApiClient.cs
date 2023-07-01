@@ -12,6 +12,7 @@ namespace eShopSolution.AdminApp.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        static readonly JsonSerializer _serializer = new JsonSerializer();
         public UserApiClient(
             IHttpClientFactory httpClientFactory, 
             IConfiguration configuration,
@@ -31,9 +32,9 @@ namespace eShopSolution.AdminApp.Services
             var response = await client.PostAsync("/api/users/authenticate", httpContent);
             if(response.IsSuccessStatusCode)
             {
-                return JsonConvert.DeserializeObject<ApiSuccessResult<string>>(await response.Content.ReadAsStringAsync());
+                return JsonConvert.DeserializeObject<ApiSuccessResult<string>>(await response.Content.ReadAsStringAsync())!;
             }
-            return JsonConvert.DeserializeObject<ApiErrorResult<string>>(await response.Content.ReadAsStringAsync());
+            return JsonConvert.DeserializeObject<ApiErrorResult<string>>(await response.Content.ReadAsStringAsync())!;
 
         }
 
@@ -47,9 +48,9 @@ namespace eShopSolution.AdminApp.Services
             var body = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
             {
-                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(body);
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(body)!;
             }
-            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(body);
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(body)!;
         }
 
         public async Task<ApiResult<UserVm>> GetById(Guid id)
@@ -62,17 +63,17 @@ namespace eShopSolution.AdminApp.Services
             var body = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
             {
-                return JsonConvert.DeserializeObject<ApiSuccessResult<UserVm>>(body);
+                return JsonConvert.DeserializeObject<ApiSuccessResult<UserVm>>(body)!;
             }
-            return JsonConvert.DeserializeObject<ApiErrorResult<UserVm>>(body);
+            return JsonConvert.DeserializeObject<ApiErrorResult<UserVm>>(body)!;
 
         }
 
         public async Task<ApiResult<PagedResult<UserVm>>> GetUsersPagings(GetUserPagingRequest request)
         {
             
-            var client = _httpClientFactory.CreateClient();
             var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            var client = _httpClientFactory.CreateClient();
 
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
@@ -94,8 +95,27 @@ namespace eShopSolution.AdminApp.Services
             var result = await response.Content.ReadAsStringAsync();
             if( response.IsSuccessStatusCode )
             {
-                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result)!;
             }
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result)!;
+        }
+
+        public async Task<ApiResult<bool>> RoleAssign(Guid id, RoleAssignRequest request)
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
+
+            var json = JsonConvert.SerializeObject(request);
+            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await client.PutAsync($"/api/users/{id}/roles", httpContent);
+            var result = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
+
             return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
         }
 
@@ -118,5 +138,6 @@ namespace eShopSolution.AdminApp.Services
             }
             return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
         }
+        
     }
 }

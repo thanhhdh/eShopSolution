@@ -35,6 +35,7 @@ namespace eShopSolution.Application.System.Users
             _roleManager = roleManager;
             _config = config;
         }
+
         public async Task<ApiResult<string>> Authenticate(LoginRequest request)
         {
             var user = await _userManager.FindByNameAsync(request.UserName!);
@@ -82,6 +83,7 @@ namespace eShopSolution.Application.System.Users
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
             if(user == null) { return new ApiErrorResult<UserVm>("Người dùng không tồn tại"); }
+            var roles = await _userManager.GetRolesAsync(user);
             var userVm = new UserVm()
             {
                 Id = user.Id,
@@ -91,6 +93,7 @@ namespace eShopSolution.Application.System.Users
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber,
                 Dob = user.Dob,
+                Roles = roles
             };
             return new ApiSuccessResult<UserVm>(userVm);
         }
@@ -159,6 +162,35 @@ namespace eShopSolution.Application.System.Users
             var result = await _userManager.CreateAsync(user, request.Password!);
             if (result.Succeeded) { return new ApiSuccessResult<bool>(); }
             return new ApiErrorResult<bool>("Đăng ký không thành công");
+        }
+
+        public async Task<ApiResult<bool>> RoleAssign(Guid id, RoleAssignRequest request)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                return new ApiErrorResult<bool>("Tài khoản không tồn tại");
+            }
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            if (request.Roles != null)
+            {
+                foreach (var role in request.Roles)
+                {
+                    if (role.Selected && !userRoles.Contains(role.Name))
+                    {
+                        await _userManager.AddToRoleAsync(user, role.Name);
+
+                    }
+                    else if (!role.Selected || userRoles.Contains(role.Name))
+                    {
+                        await _userManager.RemoveFromRoleAsync(user, role.Name);
+                    }
+
+                }
+            }
+
+            return new ApiSuccessResult<bool>();
         }
 
         public async Task<ApiResult<bool>> Update(Guid id, UserUpdateRequest request)

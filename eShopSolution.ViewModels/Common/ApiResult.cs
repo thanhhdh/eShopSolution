@@ -11,6 +11,6 @@ namespace eShopSolution.ViewModels.Common
         
         public bool IsSuccessed { get; set; }
         public string Message { get; set; }
-        public T ResultObj { get; set; }
+        public T? ResultObj { get; set; }
     }
 }
