@@ -27,6 +27,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddTransient<IUserApiClient, UserApiClient>();
 builder.Services.AddTransient<IRoleApiClient, RoleApiClient>();
+builder.Services.AddTransient<ILanguageApiClient, LanguageApiClient>();
+
 
 builder.Services.AddSession(options =>
 {

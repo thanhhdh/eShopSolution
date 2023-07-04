@@ -1,41 +1,42 @@
-﻿using eShopSolution.ViewModels.Common;
+﻿using eShopSolution.Utilities.Constants;
+using eShopSolution.ViewModels.Common;
+using eShopSolution.ViewModels.System.Languages;
 using eShopSolution.ViewModels.System.Roles;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
-using System.Net.Http;
-using eShopSolution.ViewModels.System.Languages;
 
 namespace eShopSolution.AdminApp.Services
 {
-    public class RoleApiClient : IRoleApiClient
+    public class BaseApiClient
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public RoleApiClient(
+        protected BaseApiClient(
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor
-            ) 
+            )
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
         }
-        public async Task<ApiResult<List<RoleVm>>> GetAll()
+
+        protected async Task<TResponse> GetAsync<TResponse>(string url)
         {
-            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            var sessions = _httpContextAccessor.HttpContext.Session.GetString(SystemConstants.AppSettings.Token)!;
             var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            client.BaseAddress = new Uri(_configuration[SystemConstants.AppSettings.BaseAddress]);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
-            var response = await client.GetAsync($"/api/roles");
+            var response = await client.GetAsync(url);
             var body = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
             {
-                List<RoleVm> myDeserializedObjList = (List<RoleVm>)JsonConvert.DeserializeObject(body, typeof(List<RoleVm>));
-                return new ApiSuccessResult<List<RoleVm>>(myDeserializedObjList);
+                TResponse myDeserializedObjList = (TResponse)JsonConvert.DeserializeObject(body, typeof(TResponse))!;
+                return myDeserializedObjList;
             }
-            return JsonConvert.DeserializeObject<ApiErrorResult<List<RoleVm>>>(body);
+            return JsonConvert.DeserializeObject<TResponse>(body)!;
         }
     }
 }
