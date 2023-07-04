@@ -11,5 +11,7 @@ namespace eShopSolution.ViewModels.Catalog.Products
     {
         public string? Keyword { get; set; }
         public List<int>? CategoryId { get; set; }
+
+        public string? LanguageId { get; set; }
     }
 }
