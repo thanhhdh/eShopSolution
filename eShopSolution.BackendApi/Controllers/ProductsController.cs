@@ -20,10 +20,17 @@ namespace eShopSolution.BackendApi.Controllers
         }
         //http://locohost:port/product?pageIndex=1&pageSize=10&categoryId=
 
-        [HttpGet("{languageId}"), Authorize]
-        public async Task<IActionResult> GetAllPaging(string languageId, [FromQuery] GetPublicProductPagingRequest request)
+        //[HttpGet("{languageId}"), Authorize]
+        //public async Task<IActionResult> GetAllPaging(string languageId, [FromQuery] GetPublicProductPagingRequest request)
+        //{
+        //    var products = await _productService.GetAllByCategoryId(languageId, request);
+        //    return Ok(products);
+        //}
+
+        [HttpGet("paging")]
+        public async Task<IActionResult> GetAllPaging(string languageId, [FromQuery] GetManageProductPagingRequest request)
         {
-            var products = await _productService.GetAllByCategoryId(languageId, request);
+            var products = await _productService.GetAllPaging(request);
             return Ok(products);
         }
 
