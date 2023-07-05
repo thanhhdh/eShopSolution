@@ -6,6 +6,7 @@ using System.Net.Http;
 using eShopSolution.ViewModels.Catalog.Products;
 using System.Configuration;
 using eShopSolution.Utilities.Constants;
+using Humanizer;
 
 namespace eShopSolution.AdminApp.Services
 {

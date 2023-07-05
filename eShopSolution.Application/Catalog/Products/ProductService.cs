@@ -63,9 +63,9 @@ namespace eShopSolution.Application.Catalog.Products
         {
             var product = new Product()
             {
-                Price = request.Price,
-                OriginalPrice = request.OriginalPrice,
-                Stock = request.Stock,
+                Price = request.Price ?? 0,
+                OriginalPrice = request.OriginalPrice ?? 0,
+                Stock = request.Stock ?? 0,
                 ViewCount = 0,
                 DateCreated = DateTime.Now,
                 ProductTranslations = new List<ProductTranslation>

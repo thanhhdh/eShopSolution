@@ -6,7 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var mvcBuilder = builder.Services.AddRazorPages();
+var mvcBuilder = builder.Services.AddRazorPages().AddMvcOptions(options =>
+    {
+        options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(
+            _ => "The field is required.");
+    });
 
 if (builder.Environment.IsDevelopment())
 {

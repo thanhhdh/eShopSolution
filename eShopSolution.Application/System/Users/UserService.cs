@@ -152,7 +152,7 @@ namespace eShopSolution.Application.System.Users
 
             user = new AppUser()
             {
-                Dob = request.Dob,
+                Dob = request.Dob ?? DateTime.Now,
                 Email = request.Email,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
