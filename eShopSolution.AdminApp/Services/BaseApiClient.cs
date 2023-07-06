@@ -12,15 +12,14 @@ namespace eShopSolution.AdminApp.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        protected BaseApiClient(
-            IHttpClientFactory httpClientFactory,
-            IConfiguration configuration,
-            IHttpContextAccessor httpContextAccessor
-            )
+
+        protected BaseApiClient(IHttpClientFactory httpClientFactory,
+                   IHttpContextAccessor httpContextAccessor,
+                    IConfiguration configuration)
         {
-            _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
+            _httpClientFactory = httpClientFactory;
         }
 
         protected async Task<TResponse> GetAsync<TResponse>(string url)
@@ -37,6 +36,21 @@ namespace eShopSolution.AdminApp.Services
                 return myDeserializedObjList;
             }
             return JsonConvert.DeserializeObject<TResponse>(body)!;
+        }
+        public async Task<List<T>> GetListAsync<T>(string url, bool requiredLogin = true)
+        {
+            var sessions = _httpContextAccessor.HttpContext.Session.GetString(SystemConstants.AppSettings.Token);
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration[SystemConstants.AppSettings.BaseAddress]);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
+            var response = await client.GetAsync(url);
+            var body = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var data = (List<T>)JsonConvert.DeserializeObject(body, typeof(List<T>))!;
+                return data;
+            }
+            throw new Exception(body)!;
         }
     }
 }

@@ -1,3 +1,4 @@
+using eShopSolution.Application.Catalog.Categories;
 using eShopSolution.Application.Catalog.Products;
 using eShopSolution.Application.Common;
 using eShopSolution.Application.System.Languages;
@@ -26,14 +27,15 @@ builder.Services.AddIdentity<AppUser, AppRole>()
     .AddEntityFrameworkStores<EShopDbContext>()
     .AddDefaultTokenProviders();
 // Delace DI
-builder.Services.AddTransient<IProductService, ProductService>();
 builder.Services.AddTransient<IStorageService, FileStorageService>();
+builder.Services.AddTransient<IProductService, ProductService>();
 builder.Services.AddTransient<UserManager<AppUser>, UserManager<AppUser>>();
 builder.Services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
 builder.Services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IRoleService, RoleService>();
 builder.Services.AddTransient<ILanguageService, LanguageService>();
+builder.Services.AddTransient<ICategoryService, CategoryService>();
 
 
 builder.Services.AddControllersWithViews();

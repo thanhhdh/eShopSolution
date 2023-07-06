@@ -18,9 +18,9 @@ namespace eShopSolution.AdminApp.Services
 
         public ProductApiClient(
             IHttpClientFactory httpClientFactory,
-            IConfiguration configuration,
-            IHttpContextAccessor httpContextAccessor
-            ) : base(httpClientFactory, configuration, httpContextAccessor) 
+            IHttpContextAccessor httpContextAccessor,
+            IConfiguration configuration
+            ) : base(httpClientFactory, httpContextAccessor, configuration) 
         {
             _httpContextAccessor = httpContextAccessor;
             _httpClientFactory = httpClientFactory;
@@ -66,7 +66,7 @@ namespace eShopSolution.AdminApp.Services
 
         public async Task<PagedResult<ProductVm>> GetPagings(GetManageProductPagingRequest request)
         {
-            var data = await GetAsync<PagedResult<ProductVm>>($"/api/products/paging?pageIndex={request.PageIndex}&pageSize={request.PageSize}&keyword={request.Keyword}&languageId={request.LanguageId}");
+            var data = await GetAsync<PagedResult<ProductVm>>($"/api/products/paging?pageIndex={request.PageIndex}&pageSize={request.PageSize}&keyword={request.Keyword}&languageId={request.LanguageId}&categoryId={request.CategoryId}");
             return data!;
         }
 

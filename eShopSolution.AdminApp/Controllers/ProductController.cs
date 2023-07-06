@@ -4,6 +4,7 @@ using eShopSolution.ViewModels.Catalog.Products;
 using eShopSolution.ViewModels.System.Users;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace eShopSolution.AdminApp.Controllers
 {
@@ -11,12 +12,15 @@ namespace eShopSolution.AdminApp.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly IProductApiClient _productApiClient;
-        public ProductController(IConfiguration configuration, IProductApiClient productApiClient)
+        private readonly ICategoryApiClient _categoryApiClient;
+
+        public ProductController(IConfiguration configuration, IProductApiClient productApiClient, ICategoryApiClient categoryApiClient)
         {
             _configuration = configuration;
             _productApiClient = productApiClient;
+            _categoryApiClient = categoryApiClient;
         }
-        public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(string keyword, int? categoryId, int pageIndex = 1, int pageSize = 10)
         {
             var languageId = HttpContext.Session.GetString(SystemConstants.AppSettings.DefaultLanguageId);
 
@@ -25,10 +29,20 @@ namespace eShopSolution.AdminApp.Controllers
                 Keyword = keyword,
                 PageIndex = pageIndex,
                 PageSize = pageSize,
-                LanguageId = languageId!
+                LanguageId = languageId!,
+                CategoryId = categoryId
             };
             var data = await _productApiClient.GetPagings(request);
             ViewBag.Keyword = keyword;
+
+            var categories = await _categoryApiClient.GetAll(languageId);
+            ViewBag.Categories = categories.Select(x => new SelectListItem()
+            {
+                Text = x.Name,
+                Value = x.Id.ToString(),
+                Selected = categoryId.HasValue && categoryId.Value == x.Id 
+            });    
+
             if (TempData["result"] != null)
             {
                 ViewBag.SuccessMsg = TempData["result"];
