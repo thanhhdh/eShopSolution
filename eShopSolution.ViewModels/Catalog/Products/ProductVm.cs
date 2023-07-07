@@ -1,4 +1,5 @@
-﻿using System;
+﻿using eShopSolution.ViewModels.Catalog.Categories;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -33,5 +34,6 @@ namespace eShopSolution.ViewModels.Catalog.Products
         public string? SeoAlias { get; set; }
         [Display(Name = "Seo tên gọi")]
         public string? LanguageId { get; set; }
+        public List<string> Categories { get; set; } = new List<string>();
     }
 }
