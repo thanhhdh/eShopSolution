@@ -27,6 +27,8 @@ builder.Services.AddControllersWithViews()
 	})
 	.SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
