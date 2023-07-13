@@ -1,27 +1,32 @@
 ﻿using eShopSolution.ViewModels.Common;
 using eShopSolution.ViewModels.System.Roles;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using System.Net.Http.Headers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
-using eShopSolution.ViewModels.System.Languages;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
-namespace eShopSolution.AdminApp.Services
+namespace eShopSolution.ApiIntegration
 {
     public class RoleApiClient : IRoleApiClient
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public RoleApiClient(
-            IHttpClientFactory httpClientFactory,
-            IConfiguration configuration,
-            IHttpContextAccessor httpContextAccessor
-            ) 
+
+        public RoleApiClient(IHttpClientFactory httpClientFactory,
+                   IHttpContextAccessor httpContextAccessor,
+                    IConfiguration configuration)
         {
-            _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
+            _httpClientFactory = httpClientFactory;
         }
+
         public async Task<ApiResult<List<RoleVm>>> GetAll()
         {
             var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
