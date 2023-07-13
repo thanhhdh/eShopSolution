@@ -29,15 +29,15 @@
                 <div class="col-md-6">
                     <form asp-action="Index" method="get">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-4">
                                 <input class="form-control" value="@ViewBag.Keyword" type="text" name="keyword" placeholder="Tìm kiếm ..." />
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-4">
                                 <select name="categoryId" onchange="this.form.submit()" asp-items="@ViewBag.Categories" class="form-control">
                                     <option>--Chọn danh mục--</option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-4">
                                 <button class="btn btn-primary" type="submit">Tìm</button>
                                 <button class="btn btn-dark" type="button" onclick="window.location.href='/Product/Index'">Reset</button>
                             </div>
@@ -73,7 +73,6 @@
                             <th>
                                 Số lượng tồn
                             </th>
-                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
