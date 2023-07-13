@@ -1,4 +1,5 @@
 ﻿using eShopSolution.Data.Entities;
+using eShopSolution.Data.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -116,7 +117,14 @@ namespace eShopSolution.Data.Extensions
                 RoleId = ROLE_ID,
                 UserId = ADMIN_ID
             });
-        }
+
+			modelBuilder.Entity<Slider>().HasData(
+				new Slider { Id = 1, Name = "Slider 1", Description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry", SortOrder = 1, Url ="#", Image = "/themes/images/carousel/1.png", Status = Status.Active },
+				new Slider { Id = 2, Name = "Slider 1", Description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry", SortOrder = 2, Url = "#", Image = "/themes/images/carousel/2.png", Status = Status.Active },
+				new Slider { Id = 3, Name = "Slider 1", Description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry", SortOrder = 3, Url = "#", Image = "/themes/images/carousel/3.png", Status = Status.Active }
+
+				);
+		}
 
     }
 }
