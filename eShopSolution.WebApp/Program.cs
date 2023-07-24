@@ -24,17 +24,17 @@ builder.Services.AddControllersWithViews()
 			o.SupportedUICultures = cultures;
 			o.DefaultRequestCulture = new RequestCulture("vi");
 		};
-	})
-	.SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+	});
+
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+	app.UseExceptionHandler("/Home/Error");
+	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+	app.UseHsts();
 }
 
 app.UseHttpsRedirection();
@@ -46,7 +46,7 @@ app.UseAuthorization();
 app.UseRequestLocalization();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{culture=vi}/{controller=Home}/{action=Index}/{id?}");
+	name: "default",
+	pattern: "{culture=vi}/{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
