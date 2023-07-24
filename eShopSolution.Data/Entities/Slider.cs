@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace eShopSolution.Data.Entities
 {
-	public class Slider
+	public class Slide
 	{
         public int Id { get; set; }
 		public String Name { get; set; }

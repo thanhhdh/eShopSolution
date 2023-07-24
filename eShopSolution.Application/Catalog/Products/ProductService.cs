@@ -186,10 +186,10 @@ namespace eShopSolution.Application.Catalog.Products
 
             var productViewModel = new ProductVm()
             {
-                Id = product.Id,
+                Id = product!.Id,
                 DateCreated = product.DateCreated,
                 Description = productTranslation != null ? productTranslation.Description : null,
-                LanguageId = productTranslation.LanguageId,
+                LanguageId = productTranslation!.LanguageId,
                 Details = productTranslation != null ? productTranslation.Details : null,
                 Name = productTranslation != null ? productTranslation.Name : null,
                 OriginalPrice = product.OriginalPrice,

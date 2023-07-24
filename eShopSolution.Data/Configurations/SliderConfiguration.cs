@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace eShopSolution.Data.Configurations
 {
-	public class SliderConfiguration : IEntityTypeConfiguration<Slider>
+	public class SlideConfiguration : IEntityTypeConfiguration<Slide>
     {
-        public void Configure(EntityTypeBuilder<Slider> builder)
+        public void Configure(EntityTypeBuilder<Slide> builder)
         {
             builder.ToTable("Slides");
             builder.HasKey(x => x.Id);
