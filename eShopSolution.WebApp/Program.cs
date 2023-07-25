@@ -1,3 +1,4 @@
+using eShopSolution.ApiIntegration;
 using eShopSolution.WebApp.LocalizationResources;
 using LazZiya.ExpressLocalization;
 using Microsoft.AspNetCore.Localization;
@@ -11,6 +12,7 @@ var cultures = new[]
 	new CultureInfo("vi"),
 	new CultureInfo("en"),
 };
+builder.Services.AddHttpClient();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews()
@@ -25,6 +27,16 @@ builder.Services.AddControllersWithViews()
 			o.DefaultRequestCulture = new RequestCulture("vi");
 		};
 	});
+builder.Services.AddSession(options =>
+{
+	options.IdleTimeout = TimeSpan.FromSeconds(300);
+	options.Cookie.HttpOnly = true;
+	options.Cookie.IsEssential = true;
+});
+
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddTransient<ISlideApiClient, SlideApiClient>();
+builder.Services.AddTransient<IProductApiClient, ProductApiClient>();
 
 
 var app = builder.Build();
@@ -44,6 +56,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 app.UseRequestLocalization();
+app.UseSession();
 
 app.MapControllerRoute(
 	name: "default",
