@@ -3,6 +3,7 @@ using Azure.Core;
 using eShopSolution.Application.Common;
 using eShopSolution.Data.EF;
 using eShopSolution.Data.Entities;
+using eShopSolution.Utilities.Constants;
 using eShopSolution.Utilities.Exceptions;
 using eShopSolution.ViewModels.Catalog.ProductImages;
 using eShopSolution.ViewModels.Catalog.Products;
@@ -121,7 +122,8 @@ namespace eShopSolution.Application.Catalog.Products
         {
             // 1 select join
             var query = from p in _context.Products
-                        join pt in _context.ProductTranslations on p.Id equals pt.ProductId
+                        join pt in _context.ProductTranslations on p.Id equals pt.ProductId into ppt
+                        from pt in ppt.DefaultIfEmpty()
                         join pic in _context.ProductInCategories on p.Id equals pic.ProductId into ppic 
                         from pic in ppic.DefaultIfEmpty()
                         join c in _context.Categories on pic.CategoryId equals c.Id into picc
@@ -144,16 +146,16 @@ namespace eShopSolution.Application.Catalog.Products
                 .Select(x => new ProductVm()
                 {
                     Id = x.p.Id,
-                    Name = x.pt.Name,
+                    Name = x.pt == null? SystemConstants.ProductConstants.NA : x.pt.Name,
                     DateCreated = x.p.DateCreated,
-                    Description = x.pt.Description,
-                    Details = x.pt.Details,
-                    LanguageId = x.pt.LanguageId,
+                    Description = x.pt == null ? SystemConstants.ProductConstants.NA : x.pt.Description,
+                    Details = x.pt == null ? SystemConstants.ProductConstants.NA : x.pt.Details,
+                    LanguageId = x.pt == null ? SystemConstants.ProductConstants.NA : x.pt.LanguageId,
                     OriginalPrice = x.p.OriginalPrice,
                     Price = x.p.Price,
-                    SeoAlias = x.pt.SeoAlias,
-                    SeoDescription = x.pt.SeoDescription,
-                    SeoTitle = x.pt.SeoTitle,
+                    SeoAlias = x.pt == null ? SystemConstants.ProductConstants.NA : x.pt.SeoAlias,
+                    SeoDescription = x.pt == null ? SystemConstants.ProductConstants.NA : x.pt.SeoDescription,
+                    SeoTitle = x.pt == null ? SystemConstants.ProductConstants.NA : x.pt.SeoTitle,
                     Stock = x.p.Stock,
                     ViewCount = x.p.ViewCount,
                 }).ToListAsync();
@@ -173,7 +175,7 @@ namespace eShopSolution.Application.Catalog.Products
         public async Task<ProductVm> GetById(int productId, string languageId)
         {
             var product = await _context.Products.FindAsync(productId);
-            var productTranslation = await _context.ProductTranslations.FirstOrDefaultAsync(x => x.ProductId == productId
+			var productTranslation = await _context.ProductTranslations.FirstOrDefaultAsync(x => x.ProductId == productId
             && x.LanguageId == languageId);
 
             var categories = await(from c in _context.Categories
@@ -182,7 +184,7 @@ namespace eShopSolution.Application.Catalog.Products
                                    where pic.ProductId == productId && ct.LanguageId == languageId
                                    select ct.Name).ToListAsync();
 
-            var image = await _context.ProductImages.Where(x => x.ProductId == productId && x.IsDefault == true).FirstOrDefaultAsync();
+			var image = await _context.ProductImages.Where(x => x.ProductId == productId && x.IsDefault == true).FirstOrDefaultAsync();
 
             var productViewModel = new ProductVm()
             {
@@ -393,16 +395,18 @@ namespace eShopSolution.Application.Catalog.Products
 
 		public async Task<List<ProductVm>> GetFeaturedProducts(string languageId, int take  )
 		{
-			// 1 select join
-			var query = from p in _context.Products
-						join pt in _context.ProductTranslations on p.Id equals pt.ProductId
-						join pic in _context.ProductInCategories on p.Id equals pic.ProductId into ppic
-                        //join pi in _context.ProductImages.Where(x => x.IsDefault == true) on p.Id equals pi.ProductId
-						from pic in ppic.DefaultIfEmpty()
-						join c in _context.Categories on pic.CategoryId equals c.Id into picc
-						from c in picc.DefaultIfEmpty()
-						where pt.LanguageId == languageId
-						select new { p, pt, pic };
+            // 1 select join
+            var query = from p in _context.Products
+                        join pt in _context.ProductTranslations on p.Id equals pt.ProductId
+                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId into ppic
+                        from pic in ppic.DefaultIfEmpty()
+                        join pi in _context.ProductImages on p.Id equals pi.ProductId into ppi
+                        from pi in ppi.DefaultIfEmpty()
+                        join c in _context.Categories on pic.CategoryId equals c.Id into picc
+                        from c in picc.DefaultIfEmpty()
+                        where pt.LanguageId == languageId && (pi == null || pi.IsDefault == true)
+                        && p.IsFeatured == true
+						select new { p, pt, pic, pi };
 
 			var data = await query.OrderByDescending(x => x.p.DateCreated).Take(take)
 				.Select(x => new ProductVm()
@@ -420,7 +424,43 @@ namespace eShopSolution.Application.Catalog.Products
 					SeoTitle = x.pt.SeoTitle,
 					Stock = x.p.Stock,
 					ViewCount = x.p.ViewCount,
-                    //ThumbnailImage = x.pi.ImagePath
+                    ThumbnailImage = x.pi.ImagePath
+				}).ToListAsync();
+
+			return data;
+		}
+
+		public async Task<List<ProductVm>> GetLatestProducts(string languageId, int take)
+		{
+			// 1 select join
+			var query = from p in _context.Products
+						join pt in _context.ProductTranslations on p.Id equals pt.ProductId
+						join pic in _context.ProductInCategories on p.Id equals pic.ProductId into ppic
+						from pic in ppic.DefaultIfEmpty()
+						join pi in _context.ProductImages on p.Id equals pi.ProductId into ppi
+						from pi in ppi.DefaultIfEmpty()
+						join c in _context.Categories on pic.CategoryId equals c.Id into picc
+						from c in picc.DefaultIfEmpty()
+						where pt.LanguageId == languageId && (pi == null || pi.IsDefault == true)
+						select new { p, pt, pic, pi };
+
+			var data = await query.OrderByDescending(x => x.p.DateCreated).Take(take)
+				.Select(x => new ProductVm()
+				{
+					Id = x.p.Id,
+					Name = x.pt.Name,
+					DateCreated = x.p.DateCreated,
+					Description = x.pt.Description,
+					Details = x.pt.Details,
+					LanguageId = x.pt.LanguageId,
+					OriginalPrice = x.p.OriginalPrice,
+					Price = x.p.Price,
+					SeoAlias = x.pt.SeoAlias,
+					SeoDescription = x.pt.SeoDescription,
+					SeoTitle = x.pt.SeoTitle,
+					Stock = x.p.Stock,
+					ViewCount = x.p.ViewCount,
+					ThumbnailImage = x.pi.ImagePath
 				}).ToListAsync();
 
 			return data;

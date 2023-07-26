@@ -37,6 +37,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddTransient<ISlideApiClient, SlideApiClient>();
 builder.Services.AddTransient<IProductApiClient, ProductApiClient>();
+builder.Services.AddTransient<ICategoryApiClient, CategoryApiClient>();
 
 
 var app = builder.Build();
@@ -58,6 +59,34 @@ app.UseAuthorization();
 app.UseRequestLocalization();
 app.UseSession();
 
+app.MapControllerRoute(
+	name: "Product Category En",
+	pattern: "{culture}/categories/{id}", new
+	{
+		controller = "Product", 
+		action = "Category"
+	});
+app.MapControllerRoute(
+	name: "Product Category Vi",
+	pattern: "{culture}/danh-muc/{id}", new
+	{
+		controller = "Product",
+		action = "Category"
+	});
+app.MapControllerRoute(
+	name: "Product Detail En",
+	pattern: "{culture}/products/{id}", new
+	{
+		controller = "Product",
+		action = "Detail"
+	});
+app.MapControllerRoute(
+	name: "Product Detail Vi",
+	pattern: "{culture}/san-pham/{id}", new
+	{
+		controller = "Product",
+		action = "Detail"
+	});
 app.MapControllerRoute(
 	name: "default",
 	pattern: "{culture=vi}/{controller=Home}/{action=Index}/{id?}");
