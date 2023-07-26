@@ -32,10 +32,12 @@ namespace eShopSolution.WebApp.Controllers
 
 			var slides = await _slideApiClient.GetAll();
             var featuredProducts = await _productApiClient.GetFeaturedProducts(culture, SystemConstants.ProductSettings.NumberOfFeaturedProducts);
+            var latestProducts = await _productApiClient.GetLatestProducts(culture, SystemConstants.ProductSettings.NumberOfLatestProducts);
             var viewModel = new HomeViewModel
             {
                 Slides = slides,
-                FeaturedProducts = featuredProducts
+                FeaturedProducts = featuredProducts,
+                LatestProducts = latestProducts
             };
             return View(viewModel);
         }
