@@ -62,17 +62,15 @@ namespace eShopSolution.Application.Catalog.Products
 
         public async Task<int> Create(ProductCreateRequest request)
         {
-            var product = new Product()
+            var languages = _context.Languages;
+            var translations = new List<ProductTranslation>();
+
+			foreach (var language in languages)
             {
-                Price = request.Price ?? 0,
-                OriginalPrice = request.OriginalPrice ?? 0,
-                Stock = request.Stock ?? 0,
-                ViewCount = 0,
-                DateCreated = DateTime.Now,
-                ProductTranslations = new List<ProductTranslation>
-                { 
-                    new ProductTranslation() 
-                    { 
+                if(language.Id == request.LanguageId)
+                {
+                    translations.Add(new ProductTranslation()
+                    {
                         Name = request.Name,
                         Description = request.Description,
                         Details = request.Details,
@@ -80,9 +78,29 @@ namespace eShopSolution.Application.Catalog.Products
                         SeoAlias = request.SeoAlias,
                         SeoTitle = request.SeoTitle,
                         LanguageId = request.LanguageId
-                    } 
+                    });
                 }
-            };
+                else
+                {
+					translations.Add(new ProductTranslation()
+					{
+						Name = SystemConstants.ProductConstants.NA,
+						Description = SystemConstants.ProductConstants.NA,
+						SeoAlias = SystemConstants.ProductConstants.NA,
+						LanguageId = language.Id
+					});
+				}
+            }
+            
+			var product = new Product()
+            {
+                Price = request.Price ?? 0,
+                OriginalPrice = request.OriginalPrice ?? 0,
+                Stock = request.Stock ?? 0,
+                ViewCount = 0,
+                DateCreated = DateTime.Now,
+                ProductTranslations = translations
+			};
             // Save Image
             if(request.ThumbnailImage != null)
             {
@@ -122,8 +140,7 @@ namespace eShopSolution.Application.Catalog.Products
         {
             // 1 select join
             var query = from p in _context.Products
-                        join pt in _context.ProductTranslations on p.Id equals pt.ProductId into ppt
-                        from pt in ppt.DefaultIfEmpty()
+                        join pt in _context.ProductTranslations on p.Id equals pt.ProductId
                         join pic in _context.ProductInCategories on p.Id equals pic.ProductId into ppic 
                         from pic in ppic.DefaultIfEmpty()
                         join c in _context.Categories on pic.CategoryId equals c.Id into picc
@@ -146,16 +163,16 @@ namespace eShopSolution.Application.Catalog.Products
                 .Select(x => new ProductVm()
                 {
                     Id = x.p.Id,
-                    Name = x.pt == null? SystemConstants.ProductConstants.NA : x.pt.Name,
+					Name = x.pt.Name,
                     DateCreated = x.p.DateCreated,
-                    Description = x.pt == null ? SystemConstants.ProductConstants.NA : x.pt.Description,
-                    Details = x.pt == null ? SystemConstants.ProductConstants.NA : x.pt.Details,
-                    LanguageId = x.pt == null ? SystemConstants.ProductConstants.NA : x.pt.LanguageId,
+                    Description = x.pt.Description,
+                    Details = x.pt.Details,
+                    LanguageId = x.pt.LanguageId,
                     OriginalPrice = x.p.OriginalPrice,
                     Price = x.p.Price,
-                    SeoAlias = x.pt == null ? SystemConstants.ProductConstants.NA : x.pt.SeoAlias,
-                    SeoDescription = x.pt == null ? SystemConstants.ProductConstants.NA : x.pt.SeoDescription,
-                    SeoTitle = x.pt == null ? SystemConstants.ProductConstants.NA : x.pt.SeoTitle,
+                    SeoAlias = x.pt.SeoAlias,
+                    SeoDescription = x.pt.SeoDescription,
+                    SeoTitle = x.pt.SeoTitle,
                     Stock = x.p.Stock,
                     ViewCount = x.p.ViewCount,
                 }).ToListAsync();
