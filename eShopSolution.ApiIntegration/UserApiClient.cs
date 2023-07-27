@@ -44,7 +44,23 @@ namespace eShopSolution.ApiIntegration
             return JsonConvert.DeserializeObject<ApiErrorResult<string>>(await response.Content.ReadAsStringAsync());
         }
 
-        public async Task<ApiResult<bool>> DeleteUser(Guid id)
+		public async Task<ApiResult<bool>> RegisterUser(RegisterRequest registerRequest)
+		{
+			var client = _httpClientFactory.CreateClient();
+			client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+
+			var json = JsonConvert.SerializeObject(registerRequest);
+			var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+			var response = await client.PostAsync($"/api/users", httpContent);
+			var result = await response.Content.ReadAsStringAsync();
+			if (response.IsSuccessStatusCode)
+				return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
+
+			return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
+		}
+
+		public async Task<ApiResult<bool>> DeleteUser(Guid id)
         {
             var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var client = _httpClientFactory.CreateClient();
@@ -86,21 +102,7 @@ namespace eShopSolution.ApiIntegration
             return users;
         }
 
-        public async Task<ApiResult<bool>> RegisterUser(RegisterRequest registerRequest)
-        {
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
-
-            var json = JsonConvert.SerializeObject(registerRequest);
-            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var response = await client.PostAsync($"/api/users", httpContent);
-            var result = await response.Content.ReadAsStringAsync();
-            if (response.IsSuccessStatusCode)
-                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
-
-            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
-        }
+        
 
         public async Task<ApiResult<bool>> RoleAssign(Guid id, RoleAssignRequest request)
         {

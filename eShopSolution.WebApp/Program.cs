@@ -1,8 +1,12 @@
 using eShopSolution.ApiIntegration;
+using eShopSolution.ViewModels.System.Users;
 using eShopSolution.WebApp.LocalizationResources;
 using LazZiya.ExpressLocalization;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.AspNetCore.Mvc;
+using FluentValidation.AspNetCore;
+
+using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,10 +16,19 @@ var cultures = new[]
 	new CultureInfo("vi"),
 	new CultureInfo("en"),
 };
+
 builder.Services.AddHttpClient();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+	.AddCookie(options =>
+	{
+		options.LoginPath = "/Account/Login/";
+		options.LogoutPath = "/User/Forbidden/";
+	});
 
 // Add services to the container.
+
 builder.Services.AddControllersWithViews()
+	.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>())
 	.AddExpressLocalization<ExpressLocalizationResource, ViewLocalizationResource>(
 	ops =>
 	{
@@ -38,6 +51,7 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddTransient<ISlideApiClient, SlideApiClient>();
 builder.Services.AddTransient<IProductApiClient, ProductApiClient>();
 builder.Services.AddTransient<ICategoryApiClient, CategoryApiClient>();
+builder.Services.AddTransient<IUserApiClient, UserApiClient>();
 
 
 var app = builder.Build();
@@ -52,6 +66,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseAuthentication();
 
 app.UseRouting();
 
