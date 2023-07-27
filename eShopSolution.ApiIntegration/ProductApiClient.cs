@@ -33,7 +33,10 @@ namespace eShopSolution.ApiIntegration
 
         public async Task<bool> CreateProduct(ProductCreateRequest request)
         {
-            var sessions = _httpContextAccessor.HttpContext.Session.GetString(SystemConstants.AppSettings.Token);
+            var sessions = _httpContextAccessor
+                .HttpContext
+                .Session
+                .GetString(SystemConstants.AppSettings.Token);
 
             var languageId = _httpContextAccessor.HttpContext.Session.GetString(SystemConstants.AppSettings.DefaultLanguageId);
 

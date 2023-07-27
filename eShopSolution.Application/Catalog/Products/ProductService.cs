@@ -1,6 +1,4 @@
-﻿
-using Azure.Core;
-using eShopSolution.Application.Common;
+﻿using eShopSolution.Application.Common;
 using eShopSolution.Data.EF;
 using eShopSolution.Data.Entities;
 using eShopSolution.Utilities.Constants;
@@ -12,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
@@ -19,12 +18,14 @@ using System.Threading.Tasks;
 
 namespace eShopSolution.Application.Catalog.Products
 {
-	public class ProductService : IProductService
+    public class ProductService : IProductService
     {
         private readonly EShopDbContext _context;
         private readonly IStorageService _storageService;
-        public ProductService(EShopDbContext context, IStorageService storageService) 
-        { 
+        private const string USER_CONTENT_FOLDER_NAME = "user-content";
+
+        public ProductService(EShopDbContext context, IStorageService storageService)
+        {
             _context = context;
             _storageService = storageService;
         }
@@ -50,24 +51,20 @@ namespace eShopSolution.Application.Catalog.Products
             return productImage.Id;
         }
 
-        public async Task AddViewCount(int productId)
+        public async Task AddViewcount(int productId)
         {
             var product = await _context.Products.FindAsync(productId);
-            if (product != null) { 
-            
             product.ViewCount += 1;
             await _context.SaveChangesAsync();
-            }
         }
 
         public async Task<int> Create(ProductCreateRequest request)
         {
             var languages = _context.Languages;
             var translations = new List<ProductTranslation>();
-
-			foreach (var language in languages)
+            foreach (var language in languages)
             {
-                if(language.Id == request.LanguageId)
+                if (language.Id == request.LanguageId)
                 {
                     translations.Add(new ProductTranslation()
                     {
@@ -82,143 +79,148 @@ namespace eShopSolution.Application.Catalog.Products
                 }
                 else
                 {
-					translations.Add(new ProductTranslation()
-					{
-						Name = SystemConstants.ProductConstants.NA,
-						Description = SystemConstants.ProductConstants.NA,
-						SeoAlias = SystemConstants.ProductConstants.NA,
-						LanguageId = language.Id
-					});
-				}
+                    translations.Add(new ProductTranslation()
+                    {
+                        Name = SystemConstants.ProductConstants.NA,
+                        Description = SystemConstants.ProductConstants.NA,
+                        SeoAlias = SystemConstants.ProductConstants.NA,
+                        LanguageId = language.Id
+                    });
+                }
             }
-            
-			var product = new Product()
+            var product = new Product()
             {
-                Price = request.Price ?? 0,
-                OriginalPrice = request.OriginalPrice ?? 0,
-                Stock = request.Stock ?? 0,
+                Price = request.Price,
+                OriginalPrice = request.OriginalPrice,
+                Stock = request.Stock,
                 ViewCount = 0,
                 DateCreated = DateTime.Now,
                 ProductTranslations = translations
-			};
-            // Save Image
-            if(request.ThumbnailImage != null)
+            };
+            //Save image
+            if (request.ThumbnailImage != null)
             {
                 product.ProductImages = new List<ProductImage>()
                 {
                     new ProductImage()
                     {
-                        Caption = "Thumbnail Image",
+                        Caption = "Thumbnail image",
                         DateCreated = DateTime.Now,
                         FileSize = request.ThumbnailImage.Length,
-                        ImagePath =  await this.SaveFile(request.ThumbnailImage),
+                        ImagePath = await this.SaveFile(request.ThumbnailImage),
                         IsDefault = true,
                         SortOrder = 1
                     }
                 };
             }
             _context.Products.Add(product);
-            return await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+            return product.Id;
         }
 
         public async Task<int> Delete(int productId)
         {
             var product = await _context.Products.FindAsync(productId);
             if (product == null) throw new EShopException($"Cannot find a product: {productId}");
-            var images =  _context.ProductImages.Where(i => i.ProductId == productId);
-            foreach (var image in images )
+
+            var images = _context.ProductImages.Where(i => i.ProductId == productId);
+            foreach (var image in images)
             {
-                if(image.ImagePath != null) { 
                 await _storageService.DeleteFileAsync(image.ImagePath);
-                }
             }
+
             _context.Products.Remove(product);
+
             return await _context.SaveChangesAsync();
         }
 
         public async Task<PagedResult<ProductVm>> GetAllPaging(GetManageProductPagingRequest request)
         {
-            // 1 select join
+            //1. Select join
             var query = from p in _context.Products
                         join pt in _context.ProductTranslations on p.Id equals pt.ProductId
-                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId into ppic 
+                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId into ppic
                         from pic in ppic.DefaultIfEmpty()
                         join c in _context.Categories on pic.CategoryId equals c.Id into picc
                         from c in picc.DefaultIfEmpty()
-                        where pt.LanguageId == request.LanguageId
-                        select new {p, pt, pic};
+                        join pi in _context.ProductImages on p.Id equals pi.ProductId into ppi
+                        from pi in ppi.DefaultIfEmpty()
+                        where pt.LanguageId == request.LanguageId && pi.IsDefault == true
+                        select new { p, pt, pic, pi };
+            //2. filter
+            if (!string.IsNullOrEmpty(request.Keyword))
+                query = query.Where(x => x.pt.Name.Contains(request.Keyword));
 
-            // 2 filter
-            if(!string.IsNullOrEmpty(request.Keyword))
-                query = query.Where(x => x.pt.Name != null && x.pt.Name.Contains(request.Keyword));
             if (request.CategoryId != null && request.CategoryId != 0)
             {
                 query = query.Where(p => p.pic.CategoryId == request.CategoryId);
             }
-            // 3 paging
+
+            //3. Paging
             int totalRow = await query.CountAsync();
 
-            var data = await query.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize)
+            var data = await query.Skip((request.PageIndex - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .Select(x => new ProductVm()
                 {
                     Id = x.p.Id,
-					Name = x.pt.Name,
+                    Name = x.pt.Name,
                     DateCreated = x.p.DateCreated,
                     Description = x.pt.Description,
                     Details = x.pt.Details,
                     LanguageId = x.pt.LanguageId,
-                    OriginalPrice = x.p.OriginalPrice,
-                    Price = x.p.Price,
+                    OriginalPrice = x.p.OriginalPrice ?? 0,
+                    Price = x.p.Price ?? 0,
                     SeoAlias = x.pt.SeoAlias,
                     SeoDescription = x.pt.SeoDescription,
                     SeoTitle = x.pt.SeoTitle,
-                    Stock = x.p.Stock,
+                    Stock = x.p.Stock ?? 0,
                     ViewCount = x.p.ViewCount,
+                    ThumbnailImage = x.pi.ImagePath
                 }).ToListAsync();
 
-            // 4 select and project
+            //4. Select and projection
             var pagedResult = new PagedResult<ProductVm>()
             {
                 TotalRecords = totalRow,
-                PageIndex = request.PageIndex,
                 PageSize = request.PageSize,
-                Items = data,
+                PageIndex = request.PageIndex,
+                Items = data
             };
             return pagedResult;
-
         }
 
         public async Task<ProductVm> GetById(int productId, string languageId)
         {
             var product = await _context.Products.FindAsync(productId);
-			var productTranslation = await _context.ProductTranslations.FirstOrDefaultAsync(x => x.ProductId == productId
+            var productTranslation = await _context.ProductTranslations.FirstOrDefaultAsync(x => x.ProductId == productId
             && x.LanguageId == languageId);
 
-            var categories = await(from c in _context.Categories
-                                   join ct in _context.CategoryTranslations on c.Id equals ct.CategoryId
-                                   join pic in _context.ProductInCategories on c.Id equals pic.CategoryId
-                                   where pic.ProductId == productId && ct.LanguageId == languageId
-                                   select ct.Name).ToListAsync();
+            var categories = await (from c in _context.Categories
+                                    join ct in _context.CategoryTranslations on c.Id equals ct.CategoryId
+                                    join pic in _context.ProductInCategories on c.Id equals pic.CategoryId
+                                    where pic.ProductId == productId && ct.LanguageId == languageId
+                                    select ct.Name).ToListAsync();
 
-			var image = await _context.ProductImages.Where(x => x.ProductId == productId && x.IsDefault == true).FirstOrDefaultAsync();
+            var image = await _context.ProductImages.Where(x => x.ProductId == productId && x.IsDefault == true).FirstOrDefaultAsync();
 
             var productViewModel = new ProductVm()
             {
-                Id = product!.Id,
+                Id = product.Id,
                 DateCreated = product.DateCreated,
                 Description = productTranslation != null ? productTranslation.Description : null,
-                LanguageId = productTranslation!.LanguageId,
+                LanguageId = productTranslation.LanguageId,
                 Details = productTranslation != null ? productTranslation.Details : null,
                 Name = productTranslation != null ? productTranslation.Name : null,
-                OriginalPrice = product.OriginalPrice,
-                Price = product.Price,
+                OriginalPrice = product.OriginalPrice ?? 0,
+                Price = product.Price ?? 0,
                 SeoAlias = productTranslation != null ? productTranslation.SeoAlias : null,
                 SeoDescription = productTranslation != null ? productTranslation.SeoDescription : null,
                 SeoTitle = productTranslation != null ? productTranslation.SeoTitle : null,
-                Stock = product.Stock,
+                Stock = product.Stock ?? 0,
                 ViewCount = product.ViewCount,
-                Categories = categories
+                Categories = categories,
+                ThumbnailImage = image != null ? image.ImagePath : "no-image.jpg"
             };
             return productViewModel;
         }
@@ -262,7 +264,8 @@ namespace eShopSolution.Application.Catalog.Products
         public async Task<int> RemoveImage(int imageId)
         {
             var productImage = await _context.ProductImages.FindAsync(imageId);
-            if (productImage == null) throw new EShopException($"Cannot find a image with id: {imageId}");
+            if (productImage == null)
+                throw new EShopException($"Cannot find an image with id {imageId}");
             _context.ProductImages.Remove(productImage);
             return await _context.SaveChangesAsync();
         }
@@ -270,28 +273,30 @@ namespace eShopSolution.Application.Catalog.Products
         public async Task<int> Update(ProductUpdateRequest request)
         {
             var product = await _context.Products.FindAsync(request.Id);
-            var productTranslation = await _context.ProductTranslations.FirstOrDefaultAsync(x => x.ProductId == request.Id && x.LanguageId == request.LanguageId);
-            if (product == null || productTranslation == null)
-            {
-                throw new EShopException($"Cannot find a product with id: {request.Id}");
-            }
-            productTranslation.Name = request.Name;
-            productTranslation.SeoAlias = request.SeoAlias;
-            productTranslation.SeoDescription = request.SeoDescription;
-            productTranslation.SeoTitle = request.SeoTitle;
-            productTranslation.Description = request.Description;
-            productTranslation.Details = request.Details;
-            //Save file
-            if(request.ThumbnailImage != null)
+            var productTranslations = await _context.ProductTranslations.FirstOrDefaultAsync(x => x.ProductId == request.Id
+            && x.LanguageId == request.LanguageId);
+
+            if (product == null || productTranslations == null) throw new EShopException($"Cannot find a product with id: {request.Id}");
+
+            productTranslations.Name = request.Name;
+            productTranslations.SeoAlias = request.SeoAlias;
+            productTranslations.SeoDescription = request.SeoDescription;
+            productTranslations.SeoTitle = request.SeoTitle;
+            productTranslations.Description = request.Description;
+            productTranslations.Details = request.Details;
+
+            //Save image
+            if (request.ThumbnailImage != null)
             {
                 var thumbnailImage = await _context.ProductImages.FirstOrDefaultAsync(i => i.IsDefault == true && i.ProductId == request.Id);
-                if(thumbnailImage != null)
+                if (thumbnailImage != null)
                 {
                     thumbnailImage.FileSize = request.ThumbnailImage.Length;
                     thumbnailImage.ImagePath = await this.SaveFile(request.ThumbnailImage);
                     _context.ProductImages.Update(thumbnailImage);
                 }
             }
+
             return await _context.SaveChangesAsync();
         }
 
@@ -313,7 +318,7 @@ namespace eShopSolution.Application.Catalog.Products
         public async Task<bool> UpdatePrice(int productId, decimal newPrice)
         {
             var product = await _context.Products.FindAsync(productId);
-            if (product == null) throw new EShopException($"Cannot find a product with {productId}");
+            if (product == null) throw new EShopException($"Cannot find a product with id: {productId}");
             product.Price = newPrice;
             return await _context.SaveChangesAsync() > 0;
         }
@@ -321,17 +326,17 @@ namespace eShopSolution.Application.Catalog.Products
         public async Task<bool> UpdateStock(int productId, int addedQuantity)
         {
             var product = await _context.Products.FindAsync(productId);
-            if (product == null) throw new EShopException($"Cannot find a product with {productId}");
+            if (product == null) throw new EShopException($"Cannot find a product with id: {productId}");
             product.Stock += addedQuantity;
             return await _context.SaveChangesAsync() > 0;
         }
 
         private async Task<string> SaveFile(IFormFile file)
         {
-            var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName?.Trim('"');
+            var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
             await _storageService.SaveFileAsync(file.OpenReadStream(), fileName);
-            return fileName;
+            return "/" + USER_CONTENT_FOLDER_NAME + "/" + fileName;
         }
 
         public async Task<PagedResult<ProductVm>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request)
@@ -352,7 +357,7 @@ namespace eShopSolution.Application.Catalog.Products
             int totalRow = await query.CountAsync();
 
             var data = await query.Skip((request.PageIndex - 1) * request.PageSize)
-            .Take(request.PageSize)
+                .Take(request.PageSize)
                 .Select(x => new ProductVm()
                 {
                     Id = x.p.Id,
@@ -361,12 +366,12 @@ namespace eShopSolution.Application.Catalog.Products
                     Description = x.pt.Description,
                     Details = x.pt.Details,
                     LanguageId = x.pt.LanguageId,
-                    OriginalPrice = x.p.OriginalPrice,
-                    Price = x.p.Price,
+                    OriginalPrice = x.p.OriginalPrice ?? 0,
+                    Price = x.p.Price ?? 0,
                     SeoAlias = x.pt.SeoAlias,
                     SeoDescription = x.pt.SeoDescription,
                     SeoTitle = x.pt.SeoTitle,
-                    Stock = x.p.Stock,
+                    Stock = x.p.Stock ?? 0,
                     ViewCount = x.p.ViewCount
                 }).ToListAsync();
 
@@ -388,14 +393,15 @@ namespace eShopSolution.Application.Catalog.Products
             {
                 return new ApiErrorResult<bool>($"Sản phẩm với id {id} không tồn tại");
             }
-            foreach(var category in request.Categories)
+            foreach (var category in request.Categories)
             {
                 var productInCategory = await _context.ProductInCategories
-                    .FirstOrDefaultAsync(x => x.CategoryId == int.Parse(category.Id) && x.ProductId == id);
+                    .FirstOrDefaultAsync(x => x.CategoryId == int.Parse(category.Id)
+                    && x.ProductId == id);
                 if (productInCategory != null && category.Selected == false)
                 {
                     _context.ProductInCategories.Remove(productInCategory);
-                } 
+                }
                 else if (productInCategory == null && category.Selected)
                 {
                     await _context.ProductInCategories.AddAsync(new ProductInCategory()
@@ -405,14 +411,13 @@ namespace eShopSolution.Application.Catalog.Products
                     });
                 }
             }
-            
             await _context.SaveChangesAsync();
             return new ApiSuccessResult<bool>();
         }
 
-		public async Task<List<ProductVm>> GetFeaturedProducts(string languageId, int take  )
-		{
-            // 1 select join
+        public async Task<List<ProductVm>> GetFeaturedProducts(string languageId, int take)
+        {
+            //1. Select join
             var query = from p in _context.Products
                         join pt in _context.ProductTranslations on p.Id equals pt.ProductId
                         join pic in _context.ProductInCategories on p.Id equals pic.ProductId into ppic
@@ -423,64 +428,64 @@ namespace eShopSolution.Application.Catalog.Products
                         from c in picc.DefaultIfEmpty()
                         where pt.LanguageId == languageId && (pi == null || pi.IsDefault == true)
                         && p.IsFeatured == true
-						select new { p, pt, pic, pi };
+                        select new { p, pt, pic, pi };
 
-			var data = await query.OrderByDescending(x => x.p.DateCreated).Take(take)
-				.Select(x => new ProductVm()
-				{
-					Id = x.p.Id,
-					Name = x.pt.Name,
-					DateCreated = x.p.DateCreated,
-					Description = x.pt.Description,
-					Details = x.pt.Details,
-					LanguageId = x.pt.LanguageId,
-					OriginalPrice = x.p.OriginalPrice,
-					Price = x.p.Price,
-					SeoAlias = x.pt.SeoAlias,
-					SeoDescription = x.pt.SeoDescription,
-					SeoTitle = x.pt.SeoTitle,
-					Stock = x.p.Stock,
-					ViewCount = x.p.ViewCount,
+            var data = await query.OrderByDescending(x => x.p.DateCreated).Take(take)
+                .Select(x => new ProductVm()
+                {
+                    Id = x.p.Id,
+                    Name = x.pt.Name,
+                    DateCreated = x.p.DateCreated,
+                    Description = x.pt.Description,
+                    Details = x.pt.Details,
+                    LanguageId = x.pt.LanguageId,
+                    OriginalPrice =  x.p.OriginalPrice ?? 0,
+                    Price = x.p.Price ?? 0,
+                    SeoAlias = x.pt.SeoAlias,
+                    SeoDescription = x.pt.SeoDescription,
+                    SeoTitle = x.pt.SeoTitle,
+                    Stock = x.p.Stock ?? 0,
+                    ViewCount = x.p.ViewCount,
                     ThumbnailImage = x.pi.ImagePath
-				}).ToListAsync();
+                }).ToListAsync();
 
-			return data;
-		}
+            return data;
+        }
 
-		public async Task<List<ProductVm>> GetLatestProducts(string languageId, int take)
-		{
-			// 1 select join
-			var query = from p in _context.Products
-						join pt in _context.ProductTranslations on p.Id equals pt.ProductId
-						join pic in _context.ProductInCategories on p.Id equals pic.ProductId into ppic
-						from pic in ppic.DefaultIfEmpty()
-						join pi in _context.ProductImages on p.Id equals pi.ProductId into ppi
-						from pi in ppi.DefaultIfEmpty()
-						join c in _context.Categories on pic.CategoryId equals c.Id into picc
-						from c in picc.DefaultIfEmpty()
-						where pt.LanguageId == languageId && (pi == null || pi.IsDefault == true)
-						select new { p, pt, pic, pi };
+        public async Task<List<ProductVm>> GetLatestProducts(string languageId, int take)
+        {
+            //1. Select join
+            var query = from p in _context.Products
+                        join pt in _context.ProductTranslations on p.Id equals pt.ProductId
+                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId into ppic
+                        from pic in ppic.DefaultIfEmpty()
+                        join pi in _context.ProductImages on p.Id equals pi.ProductId into ppi
+                        from pi in ppi.DefaultIfEmpty()
+                        join c in _context.Categories on pic.CategoryId equals c.Id into picc
+                        from c in picc.DefaultIfEmpty()
+                        where pt.LanguageId == languageId && (pi == null || pi.IsDefault == true)
+                        select new { p, pt, pic, pi };
 
-			var data = await query.OrderByDescending(x => x.p.DateCreated).Take(take)
-				.Select(x => new ProductVm()
-				{
-					Id = x.p.Id,
-					Name = x.pt.Name,
-					DateCreated = x.p.DateCreated,
-					Description = x.pt.Description,
-					Details = x.pt.Details,
-					LanguageId = x.pt.LanguageId,
-					OriginalPrice = x.p.OriginalPrice,
-					Price = x.p.Price,
-					SeoAlias = x.pt.SeoAlias,
-					SeoDescription = x.pt.SeoDescription,
-					SeoTitle = x.pt.SeoTitle,
-					Stock = x.p.Stock,
-					ViewCount = x.p.ViewCount,
-					ThumbnailImage = x.pi.ImagePath
-				}).ToListAsync();
+            var data = await query.OrderByDescending(x => x.p.DateCreated).Take(take)
+                .Select(x => new ProductVm()
+                {
+                    Id = x.p.Id,
+                    Name = x.pt.Name,
+                    DateCreated = x.p.DateCreated,
+                    Description = x.pt.Description,
+                    Details = x.pt.Details,
+                    LanguageId = x.pt.LanguageId,
+                    OriginalPrice = x.p.OriginalPrice ?? 0,
+                    Price = x.p.Price ?? 0,
+                    SeoAlias = x.pt.SeoAlias,
+                    SeoDescription = x.pt.SeoDescription,
+                    SeoTitle = x.pt.SeoTitle,
+                    Stock = x.p.Stock ?? 0,
+                    ViewCount = x.p.ViewCount,
+                    ThumbnailImage = x.pi.ImagePath
+                }).ToListAsync();
 
-			return data;
-		}
-	}
+            return data!;
+        }
+    }
 }
