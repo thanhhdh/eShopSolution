@@ -1,6 +1,8 @@
 ﻿@{
 	var culture = CultureInfo.CurrentCulture.Name;
 }
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration;
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -35,6 +37,9 @@
 	<style type="text/css" id="enject"></style>
   </head>
 <body>
+	<input type="hidden" id="hidCulture" value="@culture"/>
+	<input type="hidden" id="hidBaseAddress" value="@Configuration["BaseAddress"]" />
+
 	<div id="header">
 		<div class="container">
 			<div id="welcomeLine" class="row">
@@ -57,7 +62,7 @@
 						<a href="product_summary.html"><span class="">$</span></a>*@
 						@*cookie-handler-url="@Url.Action("SetCultureCookie", "Home",new {area = "", cltr ="{0}", returnUrl="{1}"})*@ 
 						<language-nav view-context="ViewContext" language-label="NativeName"></language-nav>
-						<a href="product_summary.html" style="margin-left: 10px"><span class="btn btn-mini btn-primary"><i class="icon-shopping-cart icon-white"></i> [ 3 ] Itemes in your cart </span> </a> 
+						<a href="/@culture/cart" style="margin-left: 10px"><span class="btn btn-mini btn-primary"><i class="icon-shopping-cart icon-white"></i>  <span id="lbl_number_item">0</span> </span> </a>
 					</div>
 				</div>
 			</div>
@@ -165,6 +170,12 @@
 	
 	<script src="/themes/js/bootshop.js"></script>
     <script src="/themes/js/jquery.lightbox-0.5.js"></script>
+	<script src="/js/site.js"></script>
+	<script>
+		var site = new siteController();
+		site.initialize();
+	</script>
+	@RenderSectionAsync("script", required: false)
 	
 	<!-- Themes switcher section ============================================================================================= -->
 <div id="secectionBox">
