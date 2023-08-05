@@ -56,7 +56,7 @@
                 <label class="control-label"><span>@Model.Product.Price.ToString("N0")</span></label>
                 <div class="controls">
                     <input type="number" class="span1" placeholder="Qty." />
-                    <button type="submit" class="btn btn-large btn-primary pull-right"> <localize>Add to</localize> <i class=" icon-shopping-cart"></i></button>
+                    <button type="submit" class="btn btn-large btn-add-cart btn-primary pull-right" data-id="@Model.Product.Id"> <localize>Add to</localize> <i class=" icon-shopping-cart"></i></button>
                 </div>
             </div>
         </form>
