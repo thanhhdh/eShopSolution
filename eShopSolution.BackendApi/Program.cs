@@ -1,4 +1,5 @@
 using eShopSolution.Application.Catalog.Categories;
+using eShopSolution.Application.Catalog.Orders;
 using eShopSolution.Application.Catalog.Products;
 using eShopSolution.Application.Common;
 using eShopSolution.Application.System.Languages;
@@ -39,6 +40,8 @@ builder.Services.AddTransient<ILanguageService, LanguageService>();
 builder.Services.AddTransient<ISlideService, SlideService>();
 
 builder.Services.AddTransient<ICategoryService, CategoryService>();
+builder.Services.AddTransient<IOrderService, OrderService>();
+
 
 
 builder.Services.AddControllersWithViews();
