@@ -1,5 +1,4 @@
 ﻿using eShopSolution.Utilities.Constants;
-using eShopSolution.ViewModels.Catalog.Products;
 using eShopSolution.ViewModels.Sales;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -31,7 +30,7 @@ namespace eShopSolution.ApiIntegration
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<bool> Create(CheckOutRequest request, Guid? userId)
+        public async Task<bool> Create(CheckoutRequest request, Guid? userId)
         {
             var sessions = _httpContextAccessor
         .HttpContext

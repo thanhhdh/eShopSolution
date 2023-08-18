@@ -8,7 +8,7 @@ namespace eShopSolution.ApiIntegration
 {
     public interface IOrderApiClient
     {
-        Task<bool> Create(CheckOutRequest request, Guid? userId);
+        Task<bool> Create(CheckoutRequest request, Guid? userId);
 
         Task<List<OrderInforVm>> GetAll(string languageId);
 

@@ -1,4 +1,5 @@
-﻿using eShopSolution.ViewModels.Common;
+﻿using eShopSolution.ViewModels.Catalog.Products;
+using eShopSolution.ViewModels.Common;
 using eShopSolution.ViewModels.Sales;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace eShopSolution.Application.Catalog.Orders
 {
     public interface IOrderService
     {
-        Task<int> Create(CheckOutRequest request, Guid? userId);
+        Task<int> Create(CheckoutRequest request, Guid? userId);
 
         Task<List<OrderInforVm>> GetAll(string languageId);
 

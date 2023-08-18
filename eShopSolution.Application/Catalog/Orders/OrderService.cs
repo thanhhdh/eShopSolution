@@ -1,13 +1,13 @@
 ﻿using eShopSolution.Data.EF;
 using eShopSolution.Data.Entities;
-using eShopSolution.ViewModels.Common;
 using eShopSolution.ViewModels.Sales;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
+using System.Text;
+using System.Threading.Tasks;
+using eShopSolution.ViewModels.Common;
 using eShopSolution.Data.Enums;
 
 namespace eShopSolution.Application.Catalog.Orders
@@ -31,7 +31,7 @@ namespace eShopSolution.Application.Catalog.Orders
             return new ApiSuccessResult<bool>();
         }
 
-        public async Task<int> Create(CheckOutRequest request, Guid? userId)
+        public async Task<int> Create(CheckoutRequest request, Guid? userId)
         {
             Order newOrder = new Order()
             {
@@ -41,7 +41,7 @@ namespace eShopSolution.Application.Catalog.Orders
                 ShipAddress = request.Address,
                 ShipEmail = request.Email,
                 ShipPhoneNumber = request.PhoneNumber,
-                //Status = 0
+                Status = 0
             };
 
             List<OrderDetail> orderDetails = new List<OrderDetail>();
@@ -75,14 +75,14 @@ namespace eShopSolution.Application.Catalog.Orders
                             OrderDate = o.OrderDate,
                             Address = o.ShipAddress,
                             Email = o.ShipEmail,
-                            //Status = (OrderStatus)o.Status,
+                            Status = (OrderStatus)o.Status,
                             PhoneNumber = o.ShipPhoneNumber,
                             OrderDetails = (from od in _context.OrderDetails
                                             join p in _context.Products on od.ProductId equals p.Id
                                             join pi in _context.ProductImages on p.Id equals pi.ProductId
                                             join pt in _context.ProductTranslations on p.Id equals pt.ProductId
                                             where languageId == pt.LanguageId && o.Id == od.OrderId
-                                            select new OrderDetailRequest()
+                                            select new OrderDetailVm()
                                             {
                                                 ProductName = pt.Name,
                                                 PathImg = pi.ImagePath,
@@ -105,14 +105,14 @@ namespace eShopSolution.Application.Catalog.Orders
                             OrderDate = o.OrderDate,
                             Address = o.ShipAddress,
                             Email = o.ShipEmail,
-                            //Status = (OrderStatus)o.Status,
+                            Status = (OrderStatus)o.Status,
                             PhoneNumber = o.ShipPhoneNumber,
                             OrderDetails = (from od in _context.OrderDetails
                                             join p in _context.Products on od.ProductId equals p.Id
                                             join pi in _context.ProductImages on p.Id equals pi.ProductId
                                             join pt in _context.ProductTranslations on p.Id equals pt.ProductId
                                             where languageId == pt.LanguageId && o.Id == od.OrderId
-                                            select new OrderDetailRequest()
+                                            select new OrderDetailVm()
                                             {
                                                 ProductName = pt.Name,
                                                 PathImg = pi.ImagePath,

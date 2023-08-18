@@ -22,6 +22,6 @@ namespace eShopSolution.ViewModels.Sales
 
         public OrderStatus Status { set; get; }
 
-        public List<OrderDetailRequest> OrderDetails { set; get; } = new List<OrderDetailRequest>();
+        public List<OrderDetailVm> OrderDetails { set; get; } = new List<OrderDetailVm>();
     }
 }

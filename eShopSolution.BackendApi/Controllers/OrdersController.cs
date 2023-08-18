@@ -21,9 +21,17 @@ namespace eShopSolution.BackendApi.Controllers
             _orderService = orderService;
         }
 
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetAllOrder(string languageId)
+        {
+            var result = await _orderService.GetAll(languageId);
+            return Ok(result);
+        }
+
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Create(CheckOutRequest request)
+        public async Task<IActionResult> Create(CheckoutRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -33,8 +41,8 @@ namespace eShopSolution.BackendApi.Controllers
             if (orderId == 0)
                 return BadRequest("Fail to create order");
 
-           var order = await _orderService.GetOrderById(orderId, "vi");
-           return CreatedAtAction(nameof(GetById), new { id = orderId }, order);
+            var order = await _orderService.GetOrderById(orderId, "vi");
+            return CreatedAtAction(nameof(GetById), new { id = orderId }, order);
         }
 
         [HttpGet("{orderId}/{languageId}")]

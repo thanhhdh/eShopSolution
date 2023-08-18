@@ -2,9 +2,10 @@
 
 namespace eShopSolution.WebApp.Models
 {
-	public class CheckOutViewModel
+	public class CheckoutViewModel
 	{
         public List<CartItemViewModel> CartItems { get; set; }
-		public CheckOutRequest CheckOutRequest { get; set; }
-	}
+
+        public CheckoutRequest CheckoutModel { get; set; }
+    }
 }
