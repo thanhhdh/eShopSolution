@@ -11,10 +11,10 @@
     <li><a href="index.html">Home</a> <span class="divider">/</span></li>
     <li class="active">Products Name</li>
 </ul>
-<h3> @Model.Category.Name <small class="pull-right"> 40 <localize>available products</localize> </small></h3>
+<h3> @Model.Category.Name </h3>
 <hr class="soft" />
 
-<form class="form-horizontal span6">
+@*<form class="form-horizontal span6">
     <div class="control-group">
         <label class="control-label alignL"><localize>Sort By</localize> </label>
         <select>
@@ -24,7 +24,7 @@
             <option>Price Lowest first</option>
         </select>
     </div>
-</form>
+</form>*@
 
 <div id="myTab" class="pull-right">
     <a href="#listView" data-toggle="tab"><span class="btn btn-large"><i class="icon-list"></i></span></a>
@@ -44,17 +44,14 @@
                     <h3>@item.Name</h3>
                     <hr class="soft" />
                     <p>
-                        @item.Description
+                        @Html.Raw(@item.Description)
                     </p>
-                    <a class="btn btn-small pull-right" href="/@culture.Name/@_loc["products"]/@item.Id"><localize>Xem chi tiết</localize></a>
+                    <a class="btn btn-small pull-right" href="/@culture.Name/@_loc["products"]/@item.Id"><localize>View Detail</localize></a>
                     <br class="clr" />
                 </div>
                 <div class="span3 alignR">
                     <form class="form-horizontal qtyFrm">
                         <h3> @item.Price.ToString("N0")</h3>
-                        <label class="checkbox">
-                            <input type="checkbox">  Adds product to compair
-                        </label><br />
 
                         <a href="" class="btn btn-large btn-primary btn-add-cart" data-id="@item.Id"> <localize>Add to</localize> <i class=" icon-shopping-cart"></i></a>
                         <a href="/@culture.Name/@_loc["products"]/@item.Id" class="btn btn-large"><i class="icon-zoom-in"></i></a>

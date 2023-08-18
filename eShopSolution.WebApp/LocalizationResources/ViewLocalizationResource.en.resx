@@ -121,17 +121,38 @@
     <value>Add to</value>
     <comment>/Home/Index</comment>
   </data>
+  <data name="Address" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="ALREADY REGISTERED" xml:space="preserve">
+    <value>ALREADY REGISTERED</value>
+  </data>
   <data name="categoryUrl" xml:space="preserve">
     <value>categories</value>
     <comment>Layouts</comment>
+  </data>
+  <data name="Confirm Password" xml:space="preserve">
+    <value>Confirm Password</value>
   </data>
   <data name="Contact" xml:space="preserve">
     <value>Contact</value>
     <comment>Layouts</comment>
   </data>
+  <data name="Continue Shopping" xml:space="preserve">
+    <value>Continue Shopping</value>
+  </data>
+  <data name="CREATE YOUR ACCOUNT" xml:space="preserve">
+    <value>CREATE YOUR ACCOUNT</value>
+  </data>
+  <data name="Date of birth" xml:space="preserve">
+    <value>Date of birth</value>
+  </data>
   <data name="Delivery" xml:space="preserve">
     <value>Delivery</value>
     <comment>Layouts</comment>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
   </data>
   <data name="English" xml:space="preserve">
     <value>English</value>
@@ -141,6 +162,18 @@
     <value>Featured Products</value>
     <comment>/Home/Index</comment>
   </data>
+  <data name="First name" xml:space="preserve">
+    <value>First name</value>
+  </data>
+  <data name="Forget password" xml:space="preserve">
+    <value>Forget password</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Last name" xml:space="preserve">
+    <value>Last name</value>
+  </data>
   <data name="Latest Products" xml:space="preserve">
     <value>Latest Products</value>
     <comment>/Home/Index</comment>
@@ -149,13 +182,58 @@
     <value>Login</value>
     <comment>Layouts</comment>
   </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="PhoneNumber" xml:space="preserve">
+    <value>PhoneNumber</value>
+  </data>
+  <data name="Price" xml:space="preserve">
+    <value>Price</value>
+  </data>
+  <data name="Product" xml:space="preserve">
+    <value>Product</value>
+  </data>
+  <data name="Product Details" xml:space="preserve">
+    <value>Product Details</value>
+  </data>
+  <data name="Product Information" xml:space="preserve">
+    <value>Product Information</value>
+  </data>
   <data name="productUrl" xml:space="preserve">
     <value>products</value>
     <comment>Layouts</comment>
   </data>
+  <data name="Purchase" xml:space="preserve">
+    <value>Purchase</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>Quantity</value>
+  </data>
+  <data name="Registration" xml:space="preserve">
+    <value>Registration</value>
+  </data>
+  <data name="SHOPPING CART" xml:space="preserve">
+    <value>SHOPPING CART</value>
+  </data>
+  <data name="Sign in" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
   <data name="Specials Offer" xml:space="preserve">
     <value>Specials Offer</value>
     <comment>Layouts</comment>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="UserName" xml:space="preserve">
+    <value>UserName</value>
   </data>
   <data name="Vietnamese" xml:space="preserve">
     <value>Vietnamese</value>
@@ -164,5 +242,11 @@
   <data name="VIEW" xml:space="preserve">
     <value>VIEW</value>
     <comment>/Home/Index</comment>
+  </data>
+  <data name="View Detail" xml:space="preserve">
+    <value>View Detail</value>
+  </data>
+  <data name="Your personal information" xml:space="preserve">
+    <value>Your personal information</value>
   </data>
 </root>

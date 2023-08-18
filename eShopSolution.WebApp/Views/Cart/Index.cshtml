@@ -6,6 +6,8 @@
 @{
     var culture = CultureInfo.CurrentCulture.Name;
 }
+@inject LazZiya.ExpressLocalization.ISharedCultureLocalizer _loc;
+
 @section script{
     <script src="~/js/cart.js"></script>
     <script>
@@ -19,8 +21,9 @@
     <li class="active"> SHOPPING CART</li>
 </ul>
 <h3>
-    SHOPPING CART </small>
-    <a href="products.html" class="btn btn-large pull-right"><i class="icon-arrow-left"></i> Continue Shopping </a>
+    <localize>SHOPPING CART</localize>
+
+    <a href="/" class="btn btn-large pull-right"><i class="icon-arrow-left"></i><localize> Continue Shopping</localize></a>
 </h3>
 
 <hr class="soft" />
@@ -28,18 +31,18 @@
 <table class="table table-bordered" id="tbl_cart">
     <thead>
         <tr>
-            <th>Product</th>
-            <th>Description</th>
-            <th>Quantity/Update</th>
-            <th>Price</th>
-            <th>Total</th>
+            <th><localize>Product</localize></th>
+            <th><localize>Description</localize></th>
+            <th><localize>Quantity</localize></th>
+            <th><localize>Price</localize></th>
+            <th><localize>Total</localize></th>
         </tr>
     </thead>
     <tbody id="cart_body">
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="4" style="text-align:right"><strong>TOTAL=</strong></td>
+            <td colspan="4" style="text-align:right"><strong><localize>Total</localize>=</strong></td>
             <td class="label label-important" style="display:block"> <strong> <span id="lbl_total"></span> </strong></td>
         </tr>
     </tfoot>
@@ -47,5 +50,5 @@
 
 
 
-<a href="/" class="btn btn-large"><i class="icon-arrow-left"></i> Continue Shopping </a>
-<a href="/@culture/Cart/Checkout" class="btn btn-large pull-right">Next <i class="icon-arrow-right"></i></a>
+<a href="/" class="btn btn-large"><i class="icon-arrow-left"></i> <localize> Continue Shopping</localize></a>
+<a href="/@culture/Cart/Checkout" class="btn btn-large pull-right"><localize> Next</localize> <i class="icon-arrow-right"></i></a>

@@ -55,32 +55,18 @@
             <div class="control-group">
                 <label class="control-label"><span>@Model.Product.Price.ToString("N0")</span></label>
                 <div class="controls">
-                    <input type="number" class="span1" placeholder="Qty." />
                     <button type="submit" class="btn btn-large btn-add-cart btn-primary pull-right" data-id="@Model.Product.Id"> <localize>Add to</localize> <i class=" icon-shopping-cart"></i></button>
                 </div>
             </div>
         </form>
 
         <hr class="soft" />
-        <h4>100 items in stock</h4>
-        <form class="form-horizontal qtyFrm pull-right">
-            <div class="control-group">
-                <label class="control-label"><span>Color</span></label>
-                <div class="controls">
-                    <select class="span2">
-                        <option>Black</option>
-                        <option>Red</option>
-                        <option>Blue</option>
-                        <option>Brown</option>
-                    </select>
-                </div>
-            </div>
-        </form>
+        
         <hr class="soft clr" />
         <p>
             @Html.Raw(Model.Product.Details)
         </p>
-        <a class="btn btn-small pull-right" href="#detail"><localize>More Details</localize></a>
+        <a class="btn btn-small pull-right" href="#detail"><localize>View Detail</localize></a>
         <br class="clr" />
         <a href="#" name="detail"></a>
         <hr class="soft" />
@@ -89,11 +75,11 @@
     <div class="span9">
         <ul id="productDetail" class="nav nav-tabs">
             <li class="active"><a href="#home" data-toggle="tab"><localize>Product Details</localize></a></li>
-            <li><a href="#profile" data-toggle="tab"><localize>Related Products</localize></a></li>
+            @*<li><a href="#profile" data-toggle="tab"><localize>Related Products</localize></a></li>*@
         </ul>
         <div id="myTabContent" class="tab-content">
             <div class="tab-pane fade active in" id="home">
-                <h4>Product Information</h4>
+                <h4><localize>Product Information</localize></h4>
                 @Html.Raw(Model.Product.Details)
             </div>
             <div class="tab-pane fade" id="profile">

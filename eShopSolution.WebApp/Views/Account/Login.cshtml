@@ -3,24 +3,25 @@
     ViewData["Title"] = "Login";
 	Layout = "~/Views/Shared/_Layout.cshtml";
 	var culture = CultureInfo.CurrentCulture.Name;
-
 }
+@inject LazZiya.ExpressLocalization.ISharedCultureLocalizer _loc;
+
 
 <ul class="breadcrumb">
-	<li><a href="/">Home</a> <span class="divider">/</span></li>
-	<li class="active">Login</li>
+	<li><a href="/"><localize>Home</localize></a> <span class="divider">/</span></li>
+	<li class="active"><localize>Login</localize></li>
 </ul>
-<h3> Login</h3>
+<h3> <localize>Login</localize></h3>
 <hr class="soft" />
 
 <div class="row">
 	<div class="span4">
 		<div class="well">
-			<h5>CREATE YOUR ACCOUNT</h5><br />
+			<h5></h5><br />
 			<form action="register.html">
 				
 				<div class="controls">
-					<a href="/@culture/Account/Register" class="btn block">Create Your Account</a>
+					<a href="/@culture/Account/Register" class="btn block"><localize>CREATE YOUR ACCOUNT</localize> </a>
 				</div>
 			</form>
 		</div>
@@ -28,27 +29,27 @@
 	<div class="span1"> &nbsp;</div>
 	<div class="span4">
 		<div class="well">
-			<h5>ALREADY REGISTERED ?</h5>
+			<h5><localize>ALREADY REGISTERED ?</localize></h5>
 			<form action="/@culture/Account/Login" method="post">
 				<div class="control-group">
-					<label class="control-label" for="inputEmail1">UserName</label>
+					<label class="control-label" for="inputEmail1"><localize>UserName</localize></label>
 					<div class="controls">
-						<input class="span3" type="text" asp-for="UserName" placeholder="UserName">
+						<input class="span3" type="text" asp-for="UserName" >
 						<span asp-validation-for="UserName" class="text-error"></span>
 
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label" for="inputPassword1">Password</label>
+					<label class="control-label" for="inputPassword1"><localize>Password</localize></label>
 					<div class="controls">
-						<input type="password" class="span3" asp-for="Password" placeholder="Password">
+						<input type="password" class="span3" asp-for="Password">
 						<span asp-validation-for="Password" class="text-error"></span>
 
 					</div>
 				</div>
 				<div class="control-group">
 					<div class="controls">
-						<button type="submit" class="btn">Sign in</button> <a href="forgetpass.html">Forget password?</a>
+						<button type="submit" class="btn"><localize>Sign in</localize></button> <a href="forgetpass.html"><localize>Forget password</localize>?</a>
 					</div>
 				</div>
 			</form>
